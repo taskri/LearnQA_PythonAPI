@@ -1,3 +1,8 @@
 #Static files
 README.md
 LICENSE
+
+#Temporary files
+drafts.py
+ex8_tokens.py
+ex9_password_guessing.py

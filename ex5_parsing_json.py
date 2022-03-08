@@ -7,7 +7,7 @@ parsed_json = json.loads(text_json)
 #Print the second message without any check:
 print(parsed_json["messages"][1]["message"])
 
-#Values for a task:
+#Values in this task:
 key1 = "messages"
 key2 = 1
 key3 = "message"
