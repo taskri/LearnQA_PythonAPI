@@ -5,3 +5,7 @@ LICENSE
 #Temporary files
 drafts.py
 ex9_password_guessing.py
+
+#Auto generated files
+__pycache__
+*.pyc
