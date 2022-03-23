@@ -7,5 +7,6 @@ drafts.py
 ex9_password_guessing.py
 
 #Auto generated files
-__pycache__
-*.pyc
+.idea
+.pytest_cache
+__pycache__/
