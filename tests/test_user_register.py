@@ -31,8 +31,9 @@ class TestUserRegister(BaseCase):
     ]
 
     names = [
-        "firstName",
-        "lastName"
+        "username"#,
+        #"firstName",
+        #"lastName"
     ]
 
     def setup(self):
