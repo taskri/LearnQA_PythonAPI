@@ -1,13 +1,16 @@
 from lib.my_requests import MyRequests
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
+import allure
 
 
 # python -m pytest tests/test_user_get.py -k test_get_user_details_not_auth
 # python -m pytest tests/test_user_get.py -k test_get_user_details_auth_as_the_same_user
 # python -m pytest tests/test_user_get.py -k test_get_the_same_user_details_auth_as_another_user
 
+@allure.epic("Get user details cases")
 class TestUserGet(BaseCase):
+    @allure.description("This test checks user details w/o authorization info")
     def test_get_user_details_not_auth(self):
         response = MyRequests.get("/user/2")
 
@@ -16,6 +19,8 @@ class TestUserGet(BaseCase):
         not_expected_values = ["email", "firstName", "lastName"]
         Assertions.assert_json_has_not_keys(response, not_expected_values)
 
+    @allure.description("This test creates a new user and gets its info successfully.")
+    @allure.label("Positive/Negative", 'Positive')
     def test_get_user_details_auth_as_the_same_user(self):
         data = {
             "email": "vinkotov@example.com",
@@ -35,6 +40,7 @@ class TestUserGet(BaseCase):
         expected_fields = ["username", "email", "firstName", "lastName"]
         Assertions.assert_json_has_keys(response2, expected_fields)
 
+    @allure.description("This test checks getting only username of the same user with authorization info of another user.")
     def test_get_the_same_user_details_auth_as_another_user(self):
         data = {
             "email": "learnqa03272022134551@example.com",

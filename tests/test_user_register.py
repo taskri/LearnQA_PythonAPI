@@ -4,6 +4,8 @@ from lib.assertions import Assertions
 import pytest
 from random import choices
 import string
+import allure
+
 
 # python -m pytest -s tests/test_user_register.py -k test_create_user_successfully
 # python -m pytest -s tests/test_user_register.py -k test_create_user_with_existing_email
@@ -14,7 +16,7 @@ import string
 # python -m pytest -s tests/test_user_register.py -k test_name_fields_lengths_while_user_creation
 
 
-
+@allure.epic("Registration cases")
 class TestUserRegister(BaseCase):
     missing_fields = [
         "password",
@@ -30,11 +32,15 @@ class TestUserRegister(BaseCase):
     ]
 
     names = [
-        "username"#,
-        #"firstName",
-        #"lastName"
+        "username"  # ,
+        # "firstName",
+        # "lastName"
     ]
 
+    @allure.title("Create user successfully")
+    @allure.description("This test creates user successfully.")
+    @allure.label("Positive/Negative", 'Positive')
+    @allure.severity(allure.severity_level.BLOCKER)
     def test_create_user_successfully(self):
         data = self.prepare_registration_data()
 
@@ -43,6 +49,10 @@ class TestUserRegister(BaseCase):
         Assertions.assert_code_status(response, 200)
         Assertions.assert_json_has_key(response, "id")
 
+    @allure.title("Attempt to create a user with existing email")
+    @allure.description("This test checks user creation with existing email.")
+    @allure.label("Positive/Negative", 'Negative')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_create_user_with_existing_email(self):
         email = 'vinkotov@example.com'
         data = self.prepare_registration_data(email)
@@ -52,6 +62,10 @@ class TestUserRegister(BaseCase):
         Assertions.assert_code_status(response, 400)
         Assertions.assert_decoded_content(response, f"Users with email '{email}' already exists")
 
+    @allure.title("Attempt to create a user with invalid email")
+    @allure.description("This test checks user creation with invalid email w/o @ symbol.")
+    @allure.label("Positive/Negative", 'Negative')
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_create_user_with_invalid_email(self):
         data = self.prepare_registration_data()
 
@@ -62,6 +76,10 @@ class TestUserRegister(BaseCase):
         Assertions.assert_code_status(response, 400)
         Assertions.assert_decoded_content(response, f"Invalid email format")
 
+    @allure.description("This test checks user creation when one field is missing.")
+    @allure.severity(allure.severity_level.MINOR)
+    @allure.label("Positive/Negative", 'Negative')
+    @allure.title("Attempt to create a user with missing field: {missing_field}")
     @pytest.mark.parametrize("missing_field", missing_fields)
     def test_create_user_with_one_field_missing(self, missing_field):
         data = self.prepare_registration_data()
@@ -73,6 +91,10 @@ class TestUserRegister(BaseCase):
         Assertions.assert_code_status(response, 400)
         Assertions.assert_decoded_content(response, f"The following required params are missed: {missing_field}")
 
+    @allure.title("Register with parametrized name with length: {length}")
+    @allure.description("This test checks user creation with invalid name lengths.")
+    @allure.severity(allure.severity_level.TRIVIAL)
+    @allure.label("Positive/Negative", 'Negative')
     @pytest.mark.parametrize("length", lengths)
     @pytest.mark.parametrize("name", names)
     def test_name_fields_lengths_while_user_creation(self, length, name):
@@ -92,8 +114,3 @@ class TestUserRegister(BaseCase):
         if length > 250:
             Assertions.assert_code_status(response, 400)
             Assertions.assert_decoded_content(response, f"The value of '{name}' field is too long")
-
-
-
-
-

@@ -3,6 +3,7 @@ from datetime import datetime
 from requests import Response
 from lib.my_requests import MyRequests
 from lib.assertions import Assertions
+import allure
 
 
 class BaseCase:
@@ -39,26 +40,29 @@ class BaseCase:
         }
 
     def edit_user_data(self, user_id, field_to_edit, new_value, auth_data: dict = None):
+
         if auth_data == None:
-            response = MyRequests.put(
-                f"/user/{user_id}",
-                data={field_to_edit: new_value}
-            )
+            with allure.step("Get user details w/o auth data."):
+                response = MyRequests.put(
+                    f"/user/{user_id}",
+                    data={field_to_edit: new_value}
+                )
 
             return response
-
-        response = MyRequests.put(
-            f"/user/{user_id}",
-            headers={"x-csrf-token": auth_data["token"]},
-            cookies={"auth_sid": auth_data["auth_sid"]},
-            data={field_to_edit: new_value}
-        )
+        with allure.step("Get user details with auth data."):
+            response = MyRequests.put(
+                f"/user/{user_id}",
+                headers={"x-csrf-token": auth_data["token"]},
+                cookies={"auth_sid": auth_data["auth_sid"]},
+                data={field_to_edit: new_value}
+            )
 
         return response
 
     def register_new_user(self):
         register_data = self.prepare_registration_data()
-        response = MyRequests.post("/user", data=register_data)
+        with allure.step(f"Create a new user with register data: {register_data}"):
+            response = MyRequests.post("/user", data=register_data)
 
         Assertions.assert_code_status(response, 200)
         Assertions.assert_json_has_key(response, "id")
@@ -72,7 +76,8 @@ class BaseCase:
         return new_user_data
 
     def login(self, login_data: dict):
-        response = MyRequests.post("/user/login", data=login_data)
+        with allure.step(f"Login with this data: {login_data}"):
+            response = MyRequests.post("/user/login", data=login_data)
 
         Assertions.assert_code_status(response, 200), "User is not authenticated"
 
@@ -85,11 +90,13 @@ class BaseCase:
 
     def get_current_user_info(self, user_data: dict):
 
-        auth_data = self.login(user_data)
+        with allure.step(f"Authenticate with this data: {user_data}"):
+            auth_data = self.login(user_data)
 
-        response = MyRequests.get(f"/user/{user_data['user_id']}",
-                                  headers={"x-csrf-token": auth_data["token"]},
-                                  cookies={"auth_sid": auth_data["auth_sid"]})
+        with allure.step(f"Get user info of current user: {user_data['user_id']}"):
+            response = MyRequests.get(f"/user/{user_data['user_id']}",
+                                      headers={"x-csrf-token": auth_data["token"]},
+                                      cookies={"auth_sid": auth_data["auth_sid"]})
 
         expected_fields = ["username", "email", "firstName", "lastName"]
         Assertions.assert_json_has_keys(response, expected_fields)
@@ -99,6 +106,7 @@ class BaseCase:
         return response_as_dict
 
     def delete_user(self, user_id, auth_data):
-        response = MyRequests.delete(f"/user/{user_id}", headers={"x-csrf-token": auth_data["token"]},
-                                     cookies={"auth_sid": auth_data["auth_sid"]})
+        with allure.step(f"Delete user with id: {user_id}"):
+            response = MyRequests.delete(f"/user/{user_id}", headers={"x-csrf-token": auth_data["token"]},
+                                         cookies={"auth_sid": auth_data["auth_sid"]})
         return response
